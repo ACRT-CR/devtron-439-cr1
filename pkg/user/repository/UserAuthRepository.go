@@ -141,64 +141,78 @@ func (impl UserAuthRepositoryImpl) GetRoleByFilter(entity string, team string, a
 	var err error
 	if len(entity) > 0 && len(app) > 0 && act == "update" {
 		query := "SELECT role.* FROM roles role WHERE role.entity = ? AND role.entity_name=? AND role.action=?"
+		queryParams := []interface{}{entity, app, act}
 		if len(accessType) == 0 {
 			query = query + " and role.access_type is NULL"
 		} else {
-			query += " and role.access_type='" + accessType + "'"
+			query += " and role.access_type = ? "
+			queryParams = append(queryParams, accessType)
 		}
-		_, err = impl.dbConnection.Query(&model, query, entity, app, act)
+		_, err = impl.dbConnection.Query(&model, query, queryParams...)
 	} else if len(entity) > 0 && app == "" {
 		query := "SELECT role.* FROM roles role WHERE role.entity = ? AND role.action=?"
+		queryParams := []interface{}{entity, act}
 		if len(accessType) == 0 {
 			query = query + " and role.access_type is NULL"
 		} else {
-			query += " and role.access_type='"+accessType+"'"
+			query += " and role.access_type = ? "
+			queryParams = append(queryParams, accessType)
 		}
-		_, err = impl.dbConnection.Query(&model, query, entity, act)
+		_, err = impl.dbConnection.Query(&model, query, queryParams...)
 	} else {
 		if len(team) > 0 && len(app) > 0 && len(env) > 0 && len(act) > 0 {
 			query := "SELECT role.* FROM roles role WHERE role.team = ? AND role.entity_name=? AND role.environment=? AND role.action=?"
+			queryParams := []interface{}{team, app, env, act}
 			if len(accessType) == 0 {
 				query = query + " and role.access_type is NULL"
 			} else {
-				query += " and role.access_type='"+accessType+"'"
+				query += " and role.access_type = ? "
+				queryParams = append(queryParams, accessType)
 			}
-			_, err = impl.dbConnection.Query(&model, query, team, app, env, act)
+			_, err = impl.dbConnection.Query(&model, query, queryParams...)
 		} else if len(team) > 0 && app == "" && len(env) > 0 && len(act) > 0 {
 			query := "SELECT role.* FROM roles role WHERE role.team=? AND coalesce(role.entity_name,'')=? AND role.environment=? AND role.action=?"
+			queryParams := []interface{}{team, EMPTY, env, act}
 			if len(accessType) == 0 {
 				query = query + " and role.access_type is NULL"
 			} else {
-				query += " and role.access_type='"+accessType+"'"
+				query += " and role.access_type = ? "
+				queryParams = append(queryParams, accessType)
 			}
-			_, err = impl.dbConnection.Query(&model, query, team, EMPTY, env, act)
+			_, err = impl.dbConnection.Query(&model, query, queryParams...)
 		} else if len(team) > 0 && len(app) > 0 && env == "" && len(act) > 0 {
 			//this is applicable for all environment of a team
 			query := "SELECT role.* FROM roles role WHERE role.team = ? AND role.entity_name=? AND coalesce(role.environment,'')=? AND role.action=?"
+			queryParams := []interface{}{team, app, EMPTY, act}
 			if len(accessType) == 0 {
 				query = query + " and role.access_type is NULL"
 			} else {
-				query += " and role.access_type='"+accessType+"'"
+				query += " and role.access_type = ? "
+				queryParams = append(queryParams, accessType)
 			}
-			_, err = impl.dbConnection.Query(&model, query, team, app, EMPTY, act)
+			_, err = impl.dbConnection.Query(&model, query, queryParams...)
 		} else if len(team) > 0 && app == "" && env == "" && len(act) > 0 {
 			//this is applicable for all environment of a team
 			query := "SELECT role.* FROM roles role WHERE role.team = ? AND coalesce(role.entity_name,'')=? AND coalesce(role.environment,'')=? AND role.action=?"
+			queryParams := []interface{}{team, EMPTY, EMPTY, act}
 			if len(accessType) == 0 {
 				query = query + " and role.access_type is NULL"
 			} else {
-				query += " and role.access_type='"+accessType+"'"
+				query += " and role.access_type = ? "
+				queryParams = append(queryParams, accessType)
 			}
-			_, err = impl.dbConnection.Query(&model, query, team, EMPTY, EMPTY, act)
+			_, err = impl.dbConnection.Query(&model, query, queryParams...)
 		} else if team == "" && app == "" && env == "" && len(act) > 0 {
 			//this is applicable for super admin, all env, all team, all app
 			query := "SELECT role.* FROM roles role WHERE coalesce(role.team,'') = ? AND coalesce(role.entity_name,'')=? AND coalesce(role.environment,'')=? AND role.action=?"
+			queryParams := []interface{}{EMPTY, EMPTY, EMPTY, act}
 			if len(accessType) == 0 {
 				query = query + " and role.access_type is NULL"
 			} else {
-				query += " and role.access_type='"+accessType+"'"
+				query += " and role.access_type = ? "
+				queryParams = append(queryParams, accessType)
 			}
-			_, err = impl.dbConnection.Query(&model, query, EMPTY, EMPTY, EMPTY, act)
+			_, err = impl.dbConnection.Query(&model, query, queryParams...)
 		} else if team == "" && app == "" && env == "" && act == "" {
 			return model, nil
 		} else {
